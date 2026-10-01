@@ -1,0 +1,40 @@
+.DS_Store
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+backend/.env
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+backend/.venv/
+.venv/
+
+# Node/Vite artifacts
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+
+# Local databases and runtime data
+*.db
+*.sqlite
+*.sqlite3
+qingchuang.db
+
+# Uploaded source data and generated export files
+data/raw/
+data/uploads/
+data/exports/
+data/**/*.xlsx
+data/**/*.xls
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
