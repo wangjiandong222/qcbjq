@@ -1,6 +1,6 @@
-# 12345 涉检线索智能筛查工具 MVP
+# 12345 涉检线索智能筛查工具
 
-面向政法机关的 12345 市民热线涉检线索智能筛查原型系统。系统支持多批次工单手动导入、公益成案领域筛查、弱势群体筛查、行政违法筛查、拖欠工资专项导出、屡诉未决聚合、风险预警、人工确认、RBAC 权限和审计留痕。
+面向政法机关的 12345 市民热线涉检线索智能筛查原型系统。系统围绕“数据导入、工单检索、公益成案领域筛查、弱势群体筛查、行政违法识别、重复事件聚合、预警研判、人工确认、材料导出、审计留痕”形成完整工作闭环。
 
 ## 技术栈
 
@@ -9,39 +9,54 @@
 - 数据处理：openpyxl
 - 智能筛查：本地规则引擎，预留大模型适配器
 
-## 快速启动
-
-### 单链接启动，推荐落地试用
-
-```bash
-cd /Users/wang/Desktop/青创北京/qingchuang-12345-clue-screening
-bash scripts/start_web.sh
-```
-
-启动后，同一内网中的用户访问：
+## 项目目录
 
 ```text
-http://服务器IP:8000
+backend/    FastAPI 后端服务、SQLite 数据库模型、导入筛查导出逻辑
+frontend/   React + TypeScript + Vite 前端工作台
+docs/       运行手册、安全设计等项目文档
+scripts/    本地初始化和启动脚本
 ```
 
-即可打开系统并完成登录、上传、筛查、检索、确认、导出等全部操作。若只在本机试用，访问 `http://127.0.0.1:8000`。
+> 说明：本仓库不包含本地数据库、原始 Excel、导出 Excel、依赖目录和构建产物。真实或模拟数据请在系统页面中手动上传。
 
-### 开发模式
+## 快速启动：推荐方式
+
+当前版本推荐使用“后端 8000 + 前端 5173”的本地启动方式。需要打开两个终端。
+
+### 1. 启动后端
 
 ```bash
-cd /Users/wang/Desktop/青创北京/qingchuang-12345-clue-screening
-bash scripts/init_backend.sh
+cd /Users/wang/Desktop/青创北京
 bash scripts/start_backend.sh
 ```
 
-另开终端：
+后端地址：
+
+```text
+http://127.0.0.1:8000
+```
+
+健康检查：
+
+```text
+http://127.0.0.1:8000/api/health
+```
+
+### 2. 启动前端
 
 ```bash
-cd /Users/wang/Desktop/青创北京/qingchuang-12345-clue-screening
+cd /Users/wang/Desktop/青创北京
 bash scripts/start_frontend.sh
 ```
 
-访问 `http://localhost:5173`。
+前端访问：
+
+```text
+http://127.0.0.1:5173
+```
+
+如果 `http://127.0.0.1:5173/api/health` 也能返回后端健康检查结果，说明前端代理正常。
 
 ## 演示账号
 
@@ -52,7 +67,7 @@ bash scripts/start_frontend.sh
 | `reviewer` | `reviewer123` | 查看、复核 |
 | `viewer` | `viewer123` | 只读 |
 
-这些账号仅用于本地演示，上线前必须更换。
+这些账号仅用于本地演示，上线前必须更换默认密码和 `SECRET_KEY`。
 
 ## 核心功能
 
@@ -67,6 +82,21 @@ bash scripts/start_frontend.sh
 - 各业务页面右上角提供选择导出和去除已导出筛选，导出成功后工单全局标记为已导出。
 - 登录、查看详情、导入、筛查、复核、导出均写入审计日志。
 
+## 数据导入说明
+
+系统不会自动导入样例数据。登录后进入“数据导入”页面，手动上传 Excel。导入逻辑按 Excel 表头映射字段，缺列自动留空，多出的列会作为额外字段保留在详情和导出中。
+
+由于项目面向政法机关，GitHub 仓库已排除以下本地文件：
+
+- `qingchuang.db`
+- `data/raw/`
+- `data/exports/`
+- `frontend/node_modules/`
+- `backend/.venv/`
+- `frontend/dist/`
+
+请不要把真实 12345 原始数据提交到公开仓库。
+
 ## 大模型配置
 
 默认不启用外部模型。后端提供 `LLMAdapter`，按 OpenAI-compatible 方式预留：
@@ -80,12 +110,18 @@ LLM_MODEL=your-model
 
 当前版本按业务要求使用原始工单内容进行模型增强。政法机关部署建议优先使用私有化或专有云模型，并在启用外部模型前完成数据出域审批。
 
-## 目录
+## 常用命令
 
-```text
-backend/   FastAPI 后端
-frontend/  React 管理后台
-data/      样例数据、导出文件
-docs/      安全设计和运行手册
-scripts/   初始化和启动脚本
+```bash
+# 后端测试
+cd /Users/wang/Desktop/青创北京/backend
+.venv/bin/python -m pytest tests/test_services.py -q
+
+# 前端构建
+cd /Users/wang/Desktop/青创北京/frontend
+npm run build
 ```
+
+## GitHub 提醒
+
+当前仓库用于代码和文档管理。若继续用于政法机关项目展示或真实数据试点，建议在 GitHub 仓库设置中改为 Private，避免项目细节被公开检索。
